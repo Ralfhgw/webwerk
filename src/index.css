@@ -1,0 +1,72 @@
+:root {
+  --bg: #dcecff;
+  --panel: rgba(247, 251, 255, 0.74);
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-dark: #112456;
+  --border: rgba(120, 154, 201, 0.22);
+  --border-strong: rgba(92, 135, 194, 0.34);
+  --text-strong: #10213f;
+  --text-muted: #4f6284;
+  --accent-strong: #1d56c0;
+  --shadow-soft: 0 24px 80px rgba(10, 42, 99, 0.16);
+  --font-body: 'Aptos', 'Segoe UI Variable', 'Trebuchet MS', sans-serif;
+  --font-heading: 'Aptos Display', 'Segoe UI Variable Display', 'Franklin Gothic Medium',
+    'Trebuchet MS', sans-serif;
+  font-family: var(--font-body);
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--text-strong);
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.88), transparent 32%),
+    radial-gradient(circle at right 20%, rgba(102, 170, 255, 0.34), transparent 22%),
+    linear-gradient(180deg, #edf5ff 0%, #cfe2ff 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.28), transparent 30%),
+    radial-gradient(circle at 80% 0%, rgba(49, 111, 206, 0.18), transparent 28%);
+  z-index: -1;
+}
+
+a,
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+#root {
+  min-height: 100vh;
+}
