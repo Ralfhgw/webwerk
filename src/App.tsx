@@ -1,6 +1,27 @@
 import { useEffect, useState, type SubmitEventHandler } from 'react'
 import type { PageConfig, ProjectCard, PageLayout, PageId, PagePreviewVariant } from './types'
 
+type ContactSubmitState = {
+  status: 'idle' | 'sending' | 'success' | 'error'
+  message: string
+}
+
+const idleContactSubmitState: ContactSubmitState = {
+  status: 'idle',
+  message: '',
+}
+
+const contactRevealClass =
+  'inline-flex items-center justify-center rounded-[10px] border border-[rgba(132,153,207,0.24)] bg-[rgba(25,35,55,0.75)] px-3.5 py-2.5 text-[#dbe5f6] no-underline transition hover:border-[rgba(132,153,207,0.34)] hover:text-[#f8fafc] focus:outline-none focus:ring-2 focus:ring-[rgba(125,161,255,0.2)]'
+
+const obfuscatedPhone = [61, 34, 47, 59, 39, 35, 39, 35, 59, 36, 37, 35, 36, 33, 33, 38]
+const obfuscatedEmail = [68, 119, 122, 112, 56, 88, 115, 99, 123, 119, 120, 120, 86, 97, 115, 116, 97, 115, 100, 125, 56, 102, 100, 121]
+
+function decodeObfuscatedContact(values: number[]) {
+  return values.map((value) => String.fromCharCode(value ^ 22)).join('')
+}
+
+
 const pages: PageConfig[] = [
   // Seitenkonfiguration HOME
   {
@@ -8,8 +29,7 @@ const pages: PageConfig[] = [
     label: 'Home',
     eyebrow: 'Angebot',
     title: 'Webentwicklung, Automatisierung und individuelle Tools.',
-    summary:
-      'WebWerk entwickelt und betreut als Einzelunternehmen digitale Lösungen für Anwender, die online klar auftreten und technische Prozesse sinnvoll vereinfachen wollen.',
+    summary: 'WebWerk entwickelt und betreut als Einzelunternehmen digitale Lösungen für Anwender und arbeitet sowohl eigenständig als auch in Teams an Projekten.',
     highlight: 'Drei klare Leistungsfelder statt unnötiger Komplexität.',
     command: 'webwerk build services --target local-business',
     code: [
@@ -56,8 +76,8 @@ const pages: PageConfig[] = [
     eyebrow: 'Anfrage',
     title: 'Das Kontaktformular ist der beste Einstieg für neue Projekte.',
     summary:
-      'Eine kurze Beschreibung reicht aus. Telefon und E-Mail bleiben sichtbar, das Formular ist aber der bevorzugte erste Weg.',
-    highlight: 'Direkter Einstieg ohne lange Huerden.',
+      'Sende eine kurze Anfrage im Formular.',
+    highlight: 'Direkter Einstieg ohne lange Hürden.',
     command: 'webwerk open contact --channel form',
     code: [
       'inquiry.capture({ name, company, email, message })',
@@ -81,11 +101,11 @@ const pages: PageConfig[] = [
 const services = [
   {
     title: 'Unternehmenswebsites',
-    text: 'Moderne Websites mit klarem Aufbau, professioneller Wirkung und Fokus auf qualifizierte Anfragen.',
+    text: 'Moderne Websites mit klarem Aufbau, basierend auf modernen Technologien wie React, Next.js, Tailwind und Fokus auf ein ansprechendes Design.',
   },
   {
     title: 'n8n und KI-Automatisierung',
-    text: 'Ablaufe, Formulare und Wissensprozesse werden so verbunden, dass weniger manuelle Arbeit im Tagesgeschäft bleibt.',
+    text: 'Abläufe, Formulare und Wissensprozesse werden so verbunden, dass weniger manuelle Arbeit im Tagesgeschäft bleibt.',
   },
   {
     title: 'Individuelle Web-Tools',
@@ -178,6 +198,7 @@ function App() {
 
     return getPageFromHash(window.location.hash)
   })
+  const [contactSubmitState, setContactSubmitState] = useState<ContactSubmitState>(idleContactSubmitState)
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -199,9 +220,56 @@ function App() {
     window.location.hash = page
   }
 
-  const handleSubmit: SubmitEventHandler<HTMLFormElement> = (event) => {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
-    event.currentTarget.reset()
+    const form = event.currentTarget
+    const formData = new FormData(form)
+
+    const payload = {
+      email: String(formData.get('email') ?? '').trim(),
+      title: String(formData.get('title') ?? '').trim(),
+      message: String(formData.get('message') ?? '').trim(),
+    }
+
+    if (!payload.email || !payload.title || !payload.message) {
+      setContactSubmitState({
+        status: 'error',
+        message: 'Bitte alle Felder vollständig ausfüllen.',
+      })
+      return
+    }
+
+    setContactSubmitState({
+      status: 'sending',
+      message: 'Nachricht wird gesendet...',
+    })
+
+    try {
+      const response = await fetch('/api/contact', {
+       method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      const result = await response.json().catch(() => null)
+
+     if (!response.ok) {
+        throw new Error(result?.error ?? 'Versand fehlgeschlagen.')
+      }
+
+      form.reset()
+      setContactSubmitState({
+        status: 'success',
+        message: result?.message ?? 'Nachricht erfolgreich versendet.',
+      })
+    } catch (error) {
+      setContactSubmitState({
+        status: 'error',
+        message: error instanceof Error ? error.message : 'Unbekannter Fehler beim Versand.',
+      })
+    }
   }
 
   const activeConfig = getActivePageConfig(activePage)
@@ -242,10 +310,10 @@ function App() {
           <aside className="bg-gray-800/50 rounded-3xl border border-[rgba(148,163,184,0.14)] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_24px_70px_rgba(0,0,0,0.24)] backdrop-blur-xl xl:flex xl:flex-col xl:gap-4.5">
             <p className={eyebrowClass}>Portfolio</p>
             <h1 className="mt-0 font-semibold tracking-tighter text-[#f5f7fb] leading-[1.02] text-[clamp(1.05rem,1.75vw,1.6rem)]">
-              WebWerk entwickelt digitale Lösungen für lokale Anwender.
+              WebWerk unterstützt bei der Entwicklung digitaler Lösungen für lokale Anwender.
             </h1>
             <p className="mt-0 text-[1.02rem] text-[#93a3c0]">
-              Fokus auf klare Websites, Automatisierung mit n8n und technische Umsetzung, die im Alltag stabil funktioniert.
+              Fokus auf klare Websites, Automatisierung mit KI und Umsetzung technischer Themen.
             </p>
 
             <div className="rounded-3xl border border-[rgba(148,163,184,0.12)] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.05),transparent_34%),linear-gradient(145deg,rgba(18,28,46,0.98),rgba(10,17,29,0.92))] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_18px_40px_rgba(0,0,0,0.24)]">
@@ -281,7 +349,11 @@ function App() {
                 </h2>
               </div>
               <div>
-                <p className="mt-3 max-w-[58ch] text-[#97a7c5]">{activeConfig.summary}</p>
+                {activePage === 'kontakt' ? (
+                  <ContactQuoteRotator />
+                ) : (
+                  <p className='mt-3 max-w-[58ch] text-[#97a7c5]'>{activeConfig.summary}</p>
+                )}
                 <div className="mt-3 flex items-end justify-center rounded-[20px] border border-[rgba(236,201,142,0.12)] bg-[linear-gradient(135deg,rgba(37,49,78,0.98),rgba(83,58,35,0.82))] px-4.5 py-4 text-center font-semibold text-[#f6f0df] shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
                   {activeConfig.highlight}
                 </div>
@@ -294,8 +366,24 @@ function App() {
                   config={activeConfig}
                   preview={activeLayout.preview}
                   handleSubmit={handleSubmit}
+                  submitState={contactSubmitState}
                 />
               </article>
+
+              {activePage === 'kontakt' && contactSubmitState.status !== 'idle' ? (
+                <p
+                  aria-live="polite"
+                  className={`rounded-[14px] border px-4 py-3 text-sm ${
+                    contactSubmitState.status === 'success'
+                      ? 'border-[rgba(86,176,120,0.28)] bg-[rgba(24,58,35,0.7)] text-[#dff7e7]'
+                      : contactSubmitState.status === 'error'
+                        ? 'border-[rgba(208,95,95,0.28)] bg-[rgba(62,28,28,0.72)] text-[#ffe3e3]'
+                        : 'border-[rgba(132,153,207,0.22)] bg-[rgba(21,31,50,0.74)] text-[#dbe5f6]'
+                  }`}
+                >
+                  {contactSubmitState.message}
+                </p>
+              ) : null}
 
               <div className="grid content-start gap-4.5">
                 <PageSections page={activePage} />
@@ -308,19 +396,51 @@ function App() {
   )
 }
 
+function ContactQuoteRotator() {
+  return (
+    <div className='contact-quote-rotator mt-3 max-w-[58ch] rounded-[22px] border border-[rgba(217,192,132,0.22)] bg-[linear-gradient(145deg,rgba(24,34,54,0.96),rgba(18,26,43,0.9))] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_20px_46px_rgba(0,0,0,0.2)]'>
+      <span className='block text-[0.78rem] font-semibold uppercase tracking-[0.22em] text-[#d8c18b]'>
+        Impuls zum Start
+      </span>
+
+      <div className='relative mt-3 min-h-31'>
+        <figure className='contact-quote-slide contact-quote-slide-first absolute inset-0 flex flex-col justify-between'>
+          <blockquote className='max-w-[32ch] text-[1.05rem] leading-[1.45] text-[#f5f7fb]'>
+            &bdquo;Der erste Schritt ist der wichtigste.&ldquo;
+          </blockquote>
+          <figcaption className='mt-3 text-[0.96rem] font-semibold text-[#93a3c0]'>
+            Autor: <span className='text-[#dbe5f6]'>Laozi</span>
+          </figcaption>
+        </figure>
+
+        <figure className='contact-quote-slide contact-quote-slide-second absolute inset-0 flex flex-col justify-between'>
+          <blockquote className='max-w-[32ch] text-[1.05rem] leading-[1.45] text-[#f5f7fb]'>
+            &bdquo;Gut begonnen ist halb gewonnen.&ldquo;
+          </blockquote>
+          <figcaption className='mt-3 text-[0.96rem] font-semibold text-[#93a3c0]'>
+            Autor: <span className='text-[#dbe5f6]'>Aristoteles</span>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  )
+}
+
 type PagePreviewProps = {
   config: PageConfig
   preview: PagePreviewVariant
   handleSubmit: SubmitEventHandler<HTMLFormElement>
+  submitState: ContactSubmitState
 }
 
-function PagePreview({ config, preview, handleSubmit }: PagePreviewProps) {
+function PagePreview({ config, preview, handleSubmit, submitState }: PagePreviewProps) {
   if (preview === 'contact') {
     return (
       <ContactPhotoForm
         src={config.image?.src ?? '/images/contact.png'}
         alt={config.image?.alt ?? 'Kontaktformular auf einem Laptop'}
         handleSubmit={handleSubmit}
+        submitState={submitState}
       />
     )
   }
@@ -360,9 +480,10 @@ type ContactPhotoFormProps = {
   src: string
   alt: string
   handleSubmit: SubmitEventHandler<HTMLFormElement>
+  submitState: ContactSubmitState
 }
 
-function ContactPhotoForm({ src, alt, handleSubmit }: ContactPhotoFormProps) {
+function ContactPhotoForm({ src, alt, handleSubmit, submitState }: ContactPhotoFormProps) {
   return (
     <form className="mx-auto grid w-full max-w-280 gap-4" onSubmit={handleSubmit}>
       <div className="relative">
@@ -417,8 +538,12 @@ function ContactPhotoForm({ src, alt, handleSubmit }: ContactPhotoFormProps) {
           </div>
 
           <div className="pointer-events-auto absolute left-[47%] top-[58.9%] h-[4.3%] w-[16.9%]">
-            <button className={overlayButtonClass} type="submit">
-              Absenden
+            <button
+              className={`${overlayButtonClass} disabled:cursor-wait disabled:opacity-75`}
+              type="submit"
+              disabled={submitState.status === 'sending'}
+            >
+              {submitState.status === 'sending' ? 'Senden...' : 'Absenden'}
             </button>
           </div>
         </div>
@@ -668,23 +793,53 @@ function ProjectsPageSections() {
   )
 }
 
+
+type ProtectedContactLinkProps = {
+  label: string
+  prefix: 'mailto:' | 'tel:'
+  value: number[]
+  displayFormatter?: (value: string) => string
+}
+
+function ProtectedContactLink({ label, prefix, value, displayFormatter }: ProtectedContactLinkProps) {
+  const [revealed, setRevealed] = useState(false)
+
+  const decodedValue = decodeObfuscatedContact(value)
+  const displayValue = displayFormatter ? displayFormatter(decodedValue) : decodedValue
+
+  if (!revealed) {
+    return (
+      <button className={contactRevealClass} type="button" onClick={() => setRevealed(true)}>
+        {label}
+      </button>
+    )
+  }
+
+  return (
+    <a className="wrap-break-word text-[#dbe5f6] no-underline" href={`${prefix}${decodedValue}`}>
+      {displayValue}
+    </a>
+  )
+}
+
 function ContactPageSections() {
   return (
     <>
       <section className={panelCardClass}>
         <h3 className="mb-4 text-xl font-semibold text-[#f6f8fc]">Kontaktinformationen</h3>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="min-h-30 grid gap-4 md:grid-cols-2">
           <div className={miniCardClass}>
             <h4 className="mb-2 text-lg font-semibold text-[#edf2ff]">Telefon</h4>
-            <a className="wrap-break-word text-[#dbe5f6] no-underline" href="tel:+49-1515-2352770">
-              +49 1515 2352770
-            </a>
+            <ProtectedContactLink
+              label="Telefon anzeigen"
+              prefix="tel:"
+              value={obfuscatedPhone}
+              displayFormatter={(phone) => phone.replace(/-/g, ' ')}
+            />
           </div>
           <div className={miniCardClass}>
             <h4 className="mb-2 text-lg font-semibold text-[#edf2ff]">E-Mail</h4>
-            <a className="wrap-break-word text-[#dbe5f6] no-underline" href="mailto:[deine-email@domain.de]">
-              Ralf.Neumann@webwerk.pro
-            </a>
+            <ProtectedContactLink label="E-Mail anzeigen" prefix="mailto:" value={obfuscatedEmail} />
           </div>
         </div>
       </section>

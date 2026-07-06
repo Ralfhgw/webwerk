@@ -30,3 +30,36 @@
     radial-gradient(circle at right 18%, rgba(236, 201, 142, 0.18), transparent 18%),
     linear-gradient(180deg, #131e2e 0%, #1a283f 38%, #182131 100%);
 }
+
+.contact-quote-rotator {
+  overflow: hidden;
+}
+
+.contact-quote-slide {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: contactQuoteSwap 8s ease-in-out infinite;
+}
+
+.contact-quote-slide-second {
+  animation-delay: -4s;
+}
+
+@keyframes contactQuoteSwap {
+  0%,
+  42% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  50%,
+  92% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

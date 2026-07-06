@@ -1,0 +1,17 @@
+[Unit]
+# /etc/systemd/system/webwerk-contact.service
+Description=WebWerk Contact Mail Service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/project_webwerk
+Environment=CONTACT_ENV_FILE=/opt/webwerk-contact-service/.env.contact-service.local
+ExecStart=/usr/bin/node /opt/webwerk-contact-service/contact-service.mjs
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
