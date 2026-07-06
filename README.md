@@ -21,6 +21,7 @@ sudo systemctl reload nginx
 ```
 sudo systemctl status webwerk-contact
 sudo journalctl -u webwerk-contact -n 50 --no-pager
+sudo journalctl -u webwerk-contact -f
 ```
 
 ##### Setzen der Werbservice Rechte

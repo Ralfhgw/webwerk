@@ -123,23 +123,89 @@ const homeBenefits = [
 // Projektseite - Auflistung der Projekte
 const projects: ProjectCard[] = [
   {
-    name: 'n8n, KI-Agent, Vite-Formular',
+    name: 'KI-Agent mit RAM-basiertem Vektorspeicher',
     stack: 'Automatisierung von Informations- und Dokumentenprozessen',
-    text: 'Moderne Automatisierungslösungen ermöglichen es, Informationen, Dokumente und digitale Prozesse effizient miteinander zu verknüpfen. Dabei werden verschiedene Systeme wie Datenquellen, Formulare, KI-Modelle und Datenbanken in zentrale Workflows eingebunden, um wiederkehrende Aufgaben zu reduzieren, Abläufe zu beschleunigen und Informationen gezielt verfügbar zu machen. Eine Automatisierungsplattform übernimmt dabei die Orchestrierung der einzelnen Komponenten und sorgt für einen nachvollziehbaren Datenfluss zwischen den beteiligten Systemen. So können beispielsweise Anfragen automatisiert verarbeitet, Informationen aus unterschiedlichen Quellen zusammengeführt und Inhalte für die spätere Nutzung strukturiert aufbereitet werden. Ein möglicher Anwendungsfall ist der Aufbau einer dokumentenbasierten Wissensplattform, bei der Dateien automatisiert erfasst und für KI-gestützte Auswertungen nutzbar gemacht werden. Gleichzeitig können Nutzeranfragen effizient beantwortet werden, indem relevante Informationen aus den hinterlegten Inhalten bereitgestellt werden. Dieses Beispiel verdeutlicht, wie sich durch die Kombination von Automatisierung und KI sowohl interne Prozesse als auch der Zugriff auf Wissen deutlich optimieren lassen.',
+    text: (
+      <>
+        <strong>Funktion:</strong> Dieser Workflow verwandelt n8n in ein schlankes, selbstgehostetes RAG-System
+        (Retrieval-Augmented Generation). Über einen einfachen Upload lassen sich beliebige Dateien
+        einspeisen: Der Text wird automatisch in sinnvolle Abschnitte zerlegt (Recursive Text
+        Splitter), in Vektoren umgewandelt (Embeddings) und im Arbeitsspeicher abgelegt. Ein
+        Chat-Agent kann anschließend gezielt auf dieses Wissen zugreifen und Fragen dazu beantworten
+        – inklusive Gesprächsgedächtnis (Window Buffer Memory), damit der Kontext über mehrere
+        Nachrichten hinweg erhalten bleibt. Ein separater Flow erlaubt es, den Speicher jederzeit
+        manuell zurückzusetzen. <br></br>
+        <strong>Verwendung &amp; Technologie:</strong> Ideal für Prototypen,
+        Demos oder kleinere Wissensdatenbanken, bei denen keine dauerhafte Speicherung nötig ist –
+        etwa um schnell mit einem neuen Dokument zu experimentieren, ohne eine externe Datenbank
+        aufzusetzen. Als Sprachmodell und Embedding-Engine kommt Ollama zum Einsatz, läuft also
+        vollständig lokal und ohne Cloud-Abhängigkeit. Der Verzicht auf eine persistente
+        Vektordatenbank macht das Setup bewusst leichtgewichtig: schnell eingerichtet, schnell
+        zurückgesetzt, perfekt für iteratives Testen.
+      </>
+    ),
     image: {
-      src: '/images/n8n-ki-agent-workflow.png',
+      src: '/images/n8n-ki-agent-ram-workflow.png',
+      alt: 'Workflow für einen n8n KI-Agenten mit Webhook, AI Agent und Dokumentenverarbeitung',
+    },
+  },
+    {
+    name: 'KI-Agent mit Qdrant-Vektordatenbank & Webhook-API',
+    stack: 'Automatisierung von Informations- und Dokumentenprozessen',
+    text: (
+      <>
+      <strong>Funktion:</strong>
+      Dieser Workflow baut auf dem gleichen Grundprinzip auf, geht aber einen entscheidenden Schritt weiter: Statt flüchtigem Arbeitsspeicher nutzt er Qdrant als persistente Vektordatenbank. Dokumente (inklusive PDFs) werden direkt von der Festplatte eingelesen, per Ollama-Embeddings indexiert und dauerhaft gespeichert. Der gesamte Agent ist als API konzipiert: Ein Webhook nimmt Chat-Anfragen per POST entgegen, der KI-Agent verarbeitet sie mithilfe von Chat-Verlauf (Simple Memory) und Wissensdatenbank, und die Antwort wird strukturiert als JSON zurückgegeben. Ein zweiter Webhook ermöglicht das gezielte Löschen einzelner Collections in der Datenbank, ein Schedule-Trigger sorgt für automatisierte Abläufe im Hintergrund.<br></br>
+      <strong>Verwendung & Technologie:</strong>
+      Dieses Setup eignet sich für produktivere Anwendungsfälle, bei denen Wissen dauerhaft erhalten bleiben und von außen – etwa von einer Website oder App – angesprochen werden soll. Durch die Webhook-Schnittstelle lässt sich der Agent nahtlos in bestehende Systeme integrieren, ganz ohne n8n-Oberfläche im laufenden Betrieb. Auch hier läuft die KI vollständig über Ollama, während Qdrant als schnelle, skalierbare Open-Source-Vektordatenbank die Grundlage für zuverlässiges, langfristiges Wissensmanagement bildet.
+      </>
+    ),
+    image: {
+      src: '/images/n8n-ki-agent-vector-workflow.png',
       alt: 'Workflow für einen n8n KI-Agenten mit Webhook, AI Agent, Qdrant Vector Store und Dokumentenverarbeitung',
     },
   },
-  {
-    name: 'Schiessampel mit Hardware-Ansteuerung',
-    stack: 'Node.js, externe Hardware',
-    text: 'Speziallösung zur Steuerung externer Hardware für eine Schiessampel. Das Projekt wurde bereits verkauft.',
+   {
+    name: 'LLM + Logic Prover – ReAct Agent mit RISCTP',
+    stack: 'Automatisierung von Informations- und Dokumentenprozessen',
+    text: (
+      <>
+        <strong>Funktion:</strong> Dieses Projekt schlägt eine Brücke zwischen natürlicher Sprache und formaler Logik. Ein ReAct-Agent nimmt Anfragen wie „Alle Quadrate sind Rechtecke, diese Figur ist ein Quadrat, folgere: diese Figur ist ein Rechteck" entgegen und übersetzt sie automatisch in eine formale Logiksprache (FOL-PRE). Anschließend prüft ein eigener Parser und Checker die Eingabe auf Syntax- und Semantikfehler, bevor sie in die Syntax des externen Beweiswerkzeugs RISCTP übersetzt wird. Ein Solver versucht daraufhin, den Beweis tatsächlich zu führen – das Ergebnis (gültig oder nicht) wird zusammen mit der Solver-Ausgabe an den Nutzer zurückgegeben. Der Clou: Das LLM entscheidet selbst, wann welches Werkzeug gebraucht wird, und nutzt dafür zwei Tools – download zum Nachladen von Hilfsdateien und prove zur eigentlichen Beweisführung. <br></br>
+        <strong>Verwendung &amp; Technologie:</strong> Der Agent ist modular aus klar getrennten Komponenten aufgebaut: Scanner und Parser zerlegen den Eingabetext und bauen eine Baumstruktur, der Checker prüft Symbole, Typen und Prädikate, ein eigener Übersetzer erzeugt daraus valide RISCTP-Syntax, und ein Executor kümmert sich um das Starten und Überwachen des externen Prover-Prozesses. Als Sprachmodell lässt sich wahlweise OpenAI, Google Gemini, Anthropic oder ein lokales Ollama-Modell einbinden, angebunden über LangChain/LangGraph. Eine schlanke Flask-Weboberfläche mit Chat-Funktion und Konversationsspeicher rundet das Ganze ab – so bleibt auch bei mehrschrittigen Sitzungen der Kontext erhalten. Ziel ist bewusst kein allmächtiger KI-Assistent, sondern ein nachvollziehbarer, transparenter Ablauf: Verstehen → Prüfen → Übersetzen → Beweisen → Antworten – ideal für alle, die sich für die Schnittstelle von KI und formaler Verifikation interessieren.
+      </>
+    ),
+    image: {
+      src: '/images/RISCTP_scenario.png',
+      alt: 'Workflow für einen n8n KI-Agenten mit Webhook, AI Agent und Dokumentenverarbeitung',
+    },
   },
-  {
-    name: 'Sentra',
-    stack: 'Wetter, Eventplanung, Chat',
-    text: 'Grössere Webanwendung mit mehreren Alltagsfunktionen und standortbezogenen Informationen für Nutzer.',
+   {
+    name: 'SENTRA - Umfangreiches Webprojekt mit externen Auth-Server',
+    stack: 'Webprojekt',
+    text: (
+      <>
+        <strong>Funktion:</strong> Sentra ist eine personalisierte Informationsplattform, die alltagsrelevante Inhalte in einer einzigen Webanwendung bündelt. Nach dem Login erhalten Nutzerinnen und Nutzer einen zentralen Überblick über Wetterdaten, regionale Veranstaltungen, Livebilder und Streams sowie Sensordaten aus dem eigenen Umfeld. Die Anwendung soll dabei helfen, Informationen schneller zu erfassen, ohne zwischen mehreren externen Diensten wechseln zu müssen. Perspektivisch erweitert das Projekt diesen Ansatz zusätzlich um Echtzeit-Kommunikation über das Modul LiveTalk. <br></br>
+        <strong>Verwendung &amp; Technologie:</strong> Sentra ist für den Einsatz als individuelles Dashboard gedacht: Inhalte wie Standort, Sprache, aktivierte Module, Quellen und persönliche Einstellungen können pro Benutzer angepasst werden. Dadurch eignet sich das System besonders für Freizeit-, Alltags- und Reiseplanung sowie für die Kombination aus lokalen Informationen und technischen Live-Daten. Technisch basiert das Projekt im Frontend auf Next.js, React, TypeScript und Tailwind CSS. Ergänzt wird die Hauptanwendung durch einen separaten Express-basierten Authentifizierungsserver sowie weitere Microservices für Streaming, Messaging und Echtzeitfunktionen. Eingebunden sind unter anderem Open-Meteo für Wetterdaten, SERPAPI für Eventinformationen, Cloudinary für Medienverwaltung, MQTT mit Mosquitto für Sensordaten, MediaMTX für Live-Streams und MediaSoup für WebRTC-Kommunikation.
+      </>
+    ),
+    image: {
+      src: '/images/sentra.png',
+      alt: 'Grössere Webanwendung mit mehreren Alltagsfunktionen und standortbezogenen Informationen für Nutzer.',
+    },
+  },
+   {
+    name: 'Archery-Timer',
+    stack: 'Webprojekt',
+    text: (
+      <>
+        <strong>Funktion:</strong> Der Archery Timer ist ein spezialisiertes Gerät für den Einsatz bei Bogenschießen-Turnieren. Er übernimmt die komplette Zeitsteuerung während des Wettkampfs: Ein Countdown mit klarer Ziffernanzeige führt die Schützen durch die vorgeschriebenen Zeitintervalle nach den Vorgaben der Verbände DBSV und DSB, unterstützt durch akustische Signaltöne über eingebaute Lautsprecher. Zusätzlich zeigt das Gerät die aktuelle Uhrzeit an und kann zwischendurch Musik abspielen. Die Steuerung erfolgt komfortabel per Fernzugriff – entweder über einen Internetbrowser via WLAN oder direkt per SSH – sodass Kampfrichter das Gerät bequem aus der Distanz bedienen können. Über eine zusätzliche Schnittstelle lässt sich außerdem eine externe Signallampe anschließen, um optische Signale für die Schützen sichtbar zu machen. <br></br>
+        <strong>Verwendung &amp; Technologie:</strong> Das Herzstück bildet ein Raspberry Pi in Kombination mit dem Adafruit RGB Matrix HAT (inklusive RTC-Modul), der als Schnittstelle zu 32x64- oder 64x64-RGB-LED-Matrizen mit HUB75-Anschluss dient. Für die drahtlose Steuerung wurde ein eigener WLAN-Hotspot per RASPAP eingerichtet, wodurch sich das Gerät direkt über den Browser ansteuern lässt, ganz ohne bestehendes Heimnetzwerk. Die Anzeige auf der LED-Matrix wird über die bewährte Open-Source-Bibliothek rpi-rgb-led-matrix von Adafruit angesteuert, ergänzt durch Python-Bibliotheken für Bildverarbeitung (PIL) und Netzwerkkommunikation (requests). Das Ergebnis ist eine robuste, portable Lösung, die speziell auf die Anforderungen im Turnierbetrieb zugeschnitten ist – zuverlässig, gut ablesbar und flexibel fernsteuerbar.
+      </>
+    ),
+    image: {
+      src: '/images/archery_timer.png',
+      alt: 'Grössere Webanwendung mit mehreren Alltagsfunktionen und standortbezogenen Informationen für Nutzer.',
+    },
   },
 ]
 
@@ -769,24 +835,38 @@ function HomePageSections() {
 function ProjectsPageSections() {
   return (
     <section className={panelCardClass}>
-      <h3 className="mb-4 text-center text-xl font-semibold text-[#f6f8fc]">Ausgewählte Arbeiten</h3>
+      <h3 className="mb-4 text-center text-xl font-semibold text-[#f6f8fc]">Ausgewählte Beispielprojekte</h3>
       <div className="grid gap-4">
         {projects.map((project) => (
-          <article key={project.name} className={miniCardClass}>
-            <p className="mb-2 text-sm font-bold tracking-[0.08em] text-[#d8c18b]">{project.stack}</p>
-            <h4 className="text-lg font-semibold text-[#edf2ff]">{project.name}</h4>
-            <p className="text-[#94a3c0]">{project.text}</p>
-            {project.image ? (
-              <figure className={projectImageClass}>
-                <img
-                  className="w-full rounded-xl object-cover shadow-[0_14px_30px_rgba(0,0,0,0.28)]"
-                  src={project.image.src}
-                  alt={project.image.alt}
-                  loading="lazy"
-                />
-              </figure>
-            ) : null}
-          </article>
+          <details key={project.name} className={miniCardClass + ' group overflow-hidden'}>
+            <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+              <h4 className="text-lg font-semibold text-[#edf2ff]">{project.name}</h4>
+              <p className="mb-3 text-sm font-bold tracking-[0.08em] text-[#d8c18b]">{project.stack}</p>
+              <p className="mt-2 overflow-hidden text-[#94a3c0] group-open:hidden [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                {project.text} ...
+              </p>
+              <span className="mt-3 inline-flex rounded-full border border-[rgba(132,153,207,0.24)] bg-[rgba(20,29,46,0.72)] px-2.5 py-1 text-xs font-semibold tracking-[0.08em] text-[#d8c18b] group-open:hidden">
+                Mehr anzeigen
+              </span>
+              <span className="mt-3 hidden rounded-full border border-[rgba(132,153,207,0.24)] bg-[rgba(20,29,46,0.72)] px-2.5 py-1 text-xs font-semibold tracking-[0.08em] text-[#d8c18b] group-open:inline-flex">
+                Weniger anzeigen
+              </span>
+            </summary>
+
+            <div className="mt-4 border-t border-[rgba(148,163,184,0.12)] pt-4">
+              <p className="text-[#94a3c0]">{project.text}</p>
+              {project.image ? (
+                <figure className={projectImageClass}>
+                  <img
+                    className="w-full rounded-xl object-cover shadow-[0_14px_30px_rgba(0,0,0,0.28)]"
+                    src={project.image.src}
+                    alt={project.image.alt}
+                    loading="lazy"
+                  />
+                </figure>
+              ) : null}
+            </div>
+          </details>
         ))}
       </div>
     </section>

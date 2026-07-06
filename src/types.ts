@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 export type PageId = 'home' | 'projekte' | 'kontakt'
 export type PagePreviewVariant = 'terminal' | 'photo' | 'contact'
 
@@ -21,7 +23,7 @@ export type PageConfig = {
 export type ProjectCard = {
   name: string
   stack: string
-  text: string
+  text: ReactNode
   image?: {
     src: string
     alt: string
