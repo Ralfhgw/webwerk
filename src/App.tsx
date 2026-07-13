@@ -340,7 +340,9 @@ function App() {
 
   const activeConfig = getActivePageConfig(activePage)
   const activeLayout = pageLayoutById[activePage]
-
+  const portfolioAsideClass =
+    'bg-gray-800/50 rounded-3xl border border-[rgba(148,163,184,0.14)] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_24px_70px_rgba(0,0,0,0.24)] backdrop-blur-xl xl:flex xl:flex-col xl:gap-4.5' +
+    (activePage === 'home' ? '' : ' hidden')
   return (
     <div className="app-shell">
       <div className="mx-auto min-h-[calc(100svh-16px)] w-full max-w-350 overflow-hidden rounded-[28px] border border-[rgba(148,163,184,0.16)] bg-[linear-gradient(180deg,rgba(10,16,28,0.94),rgba(11,18,31,0.92))] shadow-[0_40px_120px_rgba(0,0,0,0.45)] backdrop-blur-[22px]">
@@ -373,9 +375,9 @@ function App() {
         </header>
 
         <div className="grid gap-4.5 p-3.5 xl:min-h-[calc(100svh-110px)] xl:grid-cols-[minmax(300px,360px)_minmax(0,1fr)] xl:p-4.5">
-          <aside className="bg-gray-800/50 rounded-3xl border border-[rgba(148,163,184,0.14)] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_24px_70px_rgba(0,0,0,0.24)] backdrop-blur-xl xl:flex xl:flex-col xl:gap-4.5">
+          <aside className={portfolioAsideClass}>
             <p className={eyebrowClass}>Portfolio</p>
-            <h1 className="mt-0 font-semibold tracking-tighter text-[#f5f7fb] leading-[1.02] text-[clamp(1.05rem,1.75vw,1.6rem)]">
+            <h1 className="mb-2 font-semibold tracking-tighter text-[#f5f7fb] leading-[1.02] text-[clamp(1.8rem,3.6vw,1.9rem)]">
               WebWerk unterstützt bei der Entwicklung digitaler Lösungen für lokale Anwender.
             </h1>
             <p className="mt-0 text-[1.02rem] text-[#93a3c0]">
@@ -464,26 +466,26 @@ function App() {
 
 function ContactQuoteRotator() {
   return (
-    <div className='contact-quote-rotator mt-3 max-w-[58ch] rounded-[22px] border border-[rgba(217,192,132,0.22)] bg-[linear-gradient(145deg,rgba(24,34,54,0.96),rgba(18,26,43,0.9))] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_20px_46px_rgba(0,0,0,0.2)]'>
+    <div className='contact-quote-rotator max-h-35 mt-3 max-w-[58ch] rounded-[22px] border border-[rgba(217,192,132,0.22)] bg-[linear-gradient(145deg,rgba(24,34,54,0.96),rgba(18,26,43,0.9))] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_20px_46px_rgba(0,0,0,0.2)]'>
       <span className='block text-[0.78rem] font-semibold uppercase tracking-[0.22em] text-[#d8c18b]'>
         Impuls zum Start
       </span>
 
-      <div className='relative mt-3 min-h-31'>
-        <figure className='contact-quote-slide contact-quote-slide-first absolute inset-0 flex flex-col justify-between'>
-          <blockquote className='max-w-[32ch] text-[1.05rem] leading-[1.45] text-[#f5f7fb]'>
+      <div className='relative mt-5 min-h-28'>
+        <figure className='contact-quote-slide contact-quote-slide-first absolute inset-0 flex flex-col justify-start'>
+          <blockquote className='mb-4 max-w-[32ch] text-[1.05rem] leading-[1.45] text-[#f5f7fb]'>
             &bdquo;Der erste Schritt ist der wichtigste.&ldquo;
           </blockquote>
-          <figcaption className='mt-3 text-[0.96rem] font-semibold text-[#93a3c0]'>
+          <figcaption className='text-[0.96rem] font-semibold text-[#93a3c0]'>
             Autor: <span className='text-[#dbe5f6]'>Laozi</span>
           </figcaption>
         </figure>
 
-        <figure className='contact-quote-slide contact-quote-slide-second absolute inset-0 flex flex-col justify-between'>
-          <blockquote className='max-w-[32ch] text-[1.05rem] leading-[1.45] text-[#f5f7fb]'>
+        <figure className='contact-quote-slide contact-quote-slide-second absolute inset-0 flex flex-col justify-start'>
+          <blockquote className='mb-4 max-w-[32ch] text-[1.05rem] leading-[1.45] text-[#f5f7fb]'>
             &bdquo;Gut begonnen ist halb gewonnen.&ldquo;
           </blockquote>
-          <figcaption className='mt-3 text-[0.96rem] font-semibold text-[#93a3c0]'>
+          <figcaption className='text-[0.96rem] font-semibold text-[#93a3c0]'>
             Autor: <span className='text-[#dbe5f6]'>Aristoteles</span>
           </figcaption>
         </figure>
