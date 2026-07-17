@@ -29,7 +29,7 @@ const pages: PageConfig[] = [
     label: 'Home',
     eyebrow: 'Angebot',
     title: 'Webentwicklung, Automatisierung und individuelle Tools.',
-    summary: 'WebWerk entwickelt und betreut als Einzelunternehmen digitale Lösungen für Anwender und arbeitet sowohl eigenständig als auch in Teams an Projekten.',
+    summary: 'WebWerk ist ein privates Projekt rund um Webentwicklung und digitale Lösungen. Im Mittelpunkt stehen das Ausprobieren neuer Technologien, eigene Ideen sowie die Zusammenarbeit an ausgewählten Projekten.',
     highlight: 'Drei klare Leistungsfelder statt unnötiger Komplexität.',
     command: 'webwerk build services --target local-business',
     code: [
